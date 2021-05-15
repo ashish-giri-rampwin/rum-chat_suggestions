@@ -1,15 +1,36 @@
-
 import nltk
 import random
 import string
+import re
+import dateparser
 import sys
+
+from dateparser.search import search_dates
 import nltk
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize, sent_tokenize
+from classes_dict import classes_dict,date_re,time_re
 
-from classes_dict import *
 
 remove_punct_dict = dict((ord(punct), None) for punct in string.punctuation)
+def pos_tagging(txt):
+    tokenized = sent_tokenize(txt)
+    for i in tokenized:
+        
+        # Word tokenizers is used to find the words 
+        # and punctuation in a string
+        wordsList = nltk.word_tokenize(i)
+    
+        # removing stop words from wordList
+    
+        #  Using a Tagger. Which is part-of-speech 
+        # tagger or POS-tagger. 
+        tagged = nltk.pos_tag(wordsList)
+    
+        print(tagged)
+    return tagged
 
 def lem_tokens(tokens):
 
@@ -18,13 +39,12 @@ def lem_tokens(tokens):
     return [lemmer.lemmatize(token) for token in tokens]
 
 def lem_normalize(text):
-
     return lem_tokens(nltk.word_tokenize(text.lower().translate(remove_punct_dict)))
     # return LemTokens(nltk.word_tokenize(text.lower()))
 
-def my_response(my_dict, user_input, sent_tokens):
-
+def my_response(user_input):
     robo_response = ''
+    sent_tokens, word_tokens = post_dict(classes_dict)
 
     #sent_tokens.append(user_response)
     sent_tokens['user'] = user_input
@@ -45,22 +65,49 @@ def my_response(my_dict, user_input, sent_tokens):
     # print req_tfidf
 
     error_threshold = 0.1
-    if(req_tfidf < error_threshold):
-
+    if re.search(date_re, user_input):
+        event_time=re.search(date_re,user_input).group()
+        print(event_time)
+        event_time=dateparser.parse(event_time)
+        robo_response = {"type" : "action","action" : "schedule_a_followup","parameters" : { "event_time" : event_time}}
+        return robo_response
+    elif re.search(time_re, user_input):
+        event_time=re.search(time_re,user_input).group()
+        print(event_time)
+        event_time=dateparser.parse(event_time)
+        robo_response = {"type" : "action","action" : "schedule_a_followup","parameters" : { "event_time" : event_time}}
+        return robo_response
+    elif(req_tfidf < error_threshold):
         robo_response = ["[No Suggestion]"]
         return robo_response
-
+    
     else:
+        if idx==3:
+            robo_response = {"type" : "action","action" : "create_ticket","parameters" : { "Tags" : ""}}
+            return robo_response
+            
+        elif idx==4:
+            for value in sent_tokens:
+                match_pattern = sent_tokens_[idx]
+                pattern = sent_tokens[value]
+                if match_pattern == pattern:
+                    match_class = value
+        # print match_clase
+            robo_response = {"type" : "action","action" : "schedule_a_followup","parameters" : { "event_time" : event_time}}
+            return robo_response
+        else:
+            
+            for value in sent_tokens:
+                match_pattern = sent_tokens_[idx]
+                pattern = sent_tokens[value]
+                if match_pattern == pattern:
+                    match_class = value
 
-        for value in sent_tokens:
-            match_pattern = sent_tokens_[idx]
-            pattern = sent_tokens[value]
-            if match_pattern == pattern:
-                match_class = value
-
-        # print match_class
-        robo_response = my_dict[match_class]['response']
-        return robo_response
+    
+        # print match_clase
+        
+            robo_response = {"type" : "smalltalk","responses" : classes_dict[match_class]['response']}
+            return robo_response
 
 def post_dict(some_dict):
 
@@ -74,68 +121,25 @@ def post_dict(some_dict):
 
     return sent_tokens, word_tokens
 
-sent_tokens, word_tokens = post_dict(classes_dict)
 
-print("* Hello! Type in a message and I will suggest some replies! If you'd like to exit please type quit!")
 
-flag = True
+# # flag = True
 
-while flag:
+# # while flag:
+# #     user_input=input(">>>")
+# #     if(user_input != "quit"):
 
-    user_input=input(">>>")
+# #         response = my_response(classes_dict, user_input, sent_tokens)
+# #         for i in range(0, len(response)):
+# #             print('* ' + response[i])
+# #         # sent_tokens.remove(user_input)
+# #         del sent_tokens['user']
+# #     else:
+#         flag = False
 
-    if(user_input != "quit"):
-
-        response = my_response(classes_dict, user_input, sent_tokens)
-
-        for i in range(0, len(response)):
-            print('* ' + response[i])
-
-        # sent_tokens.remove(user_input)
-        del sent_tokens['user']
-
-    else:
-
-        flag = False
-
-# def read_text():
-
-#    f = open('smart_reply_input.txt', 'r')
-#    raw = f.read()
-
-#    sent_tokens = nltk.sent_tokenize(raw)
-#    word_tokens = nltk.word_tokenize(raw)
-
-#    return sent_tokens, word_tokens
-
-# def process_text(sent_tokens, word_tokens):
-    # remove_punct_dict = dict((ord(punct), None) for punct in string.punctuation)
-    # new_word_tokens = LemTokens(word_tokens)
-    # return new_word_tokens
-
-# def greeting(sentence):
-
-    # for word in sentence.split():
-        # if word in greeting_inputs:
-            # return random.choice(greeting_responses)
-
-# my_reply = []
-# my_reply.append(["hi", "hey", "hello"])
-# my_reply.append(['You\'re welcome','My pleasure','Don\'t mention it'])
-# my_reply.append(['I\'m doing well','OK','I\'ve been better'])
-# my_reply.append(['Yes, I\'d love to','Sure!','Sorry, I can\'t'])
-# my_reply.append(['Not much','Nothing'])
-# my_reply.append(['Yes','No'])
-# my_reply.append([':)','Cool'])
-# my_reply.append([':(','Sorry'])
-# my_reply.append(['Work','Home','I\'m out'])
-# my_reply.append(['Soon','Not now'])
-# my_reply.append(['Soon','One Minute'])
-# my_reply.append(['Sounds good.','Great!','See you then!'])
-
-# from nltk.corpus import nps_chat
-# chatroom = nps_chat.posts('10-19-20s_706posts.xml')
-# a = chatroom[123]
 
 # nltk.download('punkt')
 # nltk.download('wordnet')
+
+
+print(dateparser.parse())

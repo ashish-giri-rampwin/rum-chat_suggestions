@@ -1,9 +1,11 @@
+time_re=r'(\d{1,2})([.:](\d{1,2}))?[ ]?(am|pm)?'
+date_re=r'(\d+(/|.|-)\d+(/|.|-)\d+)$'
 
 classes_dict = {}
 
 classes_dict["greeting"] = {}
 classes_dict["greeting"]["pattern"] = ["hi", "hi there", "hello", "hey", "good afternoon", "good morning", "good evening", "good day"]
-classes_dict["greeting"]["response"] = ["hi", "hey", "hello"]
+classes_dict["greeting"]["response"] = ["hi", "hey", "hello","hello,how are you?"]
 
 classes_dict["goodbye"] = {}
 classes_dict["goodbye"]["pattern"] = ["bye", "goodbye", "see you later", "gotta go", "i have to go", "see you", "see ya", "talk to you later"]
@@ -13,15 +15,10 @@ classes_dict["thanks"] = {}
 classes_dict["thanks"]["pattern"] = ["thanks", "thank you"]
 classes_dict["thanks"]["response"] = ["you're welcome", "my pleasure", "don't mention it"]
 
-classes_dict["how are you"] = {}
-classes_dict["how are you"]["pattern"] = ["how are you", "how are you doing", "how's it going"]
-classes_dict["how are you"]["response"] = ["i'm doing ok", "ok", "i've been better"]
+classes_dict["ticket"] = {}
+classes_dict["ticket"]["pattern"] = ["refund","problem","i have a problem","i want my refund back"]
+classes_dict["ticket"]["response"] = ["create_ticket"]
 
-classes_dict["future"] = {}
-classes_dict["future"]["pattern"] = ["will you", "can you", "would you", "do you"]
-classes_dict["future"]["response"] = ["yes", "no", "maybe"]
-
-classes_dict["when"] = {}
-classes_dict["when"]["pattern"] = ["when will", "when can", "when would", "when should"]
-classes_dict["when"]["response"] = ["soon", "not now"]
-
+classes_dict["follow_up"] = {}
+classes_dict["follow_up"]["pattern"] = ["monday","tusday","wednesday","thrusday","friday","saturday","sunday",]
+classes_dict["follow_up"]["response"] = ["create_followup_event"]
